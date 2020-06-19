@@ -3,6 +3,7 @@ library(xml2)
 library(dplyr)
 library(tidyr)
 library(writexl)
+library(httr)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -53,5 +54,52 @@ write_xlsx(med.df,"medrxiv_export.xlsx",col_names = TRUE)
 
 
 # arXiv
-# https://arxiv.org/search/advanced?advanced=&terms-0-operator=AND&terms-0-term=COVID-19&terms-0-field=title&terms-1-operator=OR&terms-1-term=SARS-CoV-2&terms-1-field=abstract&terms-3-operator=OR&terms-3-term=COVID-19&terms-3-field=abstract&terms-4-operator=OR&terms-4-term=SARS-CoV-2&terms-4-field=title&terms-5-operator=OR&terms-5-term=coronavirus&terms-5-field=title&terms-6-operator=OR&terms-6-term=coronavirus&terms-6-field=abstract&classification-physics_archives=all&classification-include_cross_list=include&date-filter_by=all_dates&date-year=&date-from_date=&date-to_date=&date-date_type=submitted_date&abstracts=show&size=200&order=-announced_date_first&source=home-covid-19
+## arXiv has an API for exporting metadata. See https://arxiv.org/help/api/index
+## simplest thing to do to match above (because I know little about APIs) is pull the search results using http://export.arxiv.org/api/query?search_query=
+## syntax described here https://arxiv.org/help/api/user-manual#Quickstart and https://arxiv.org/help/api/user-manual#query_details
+## search query used in default is title=COVID-19; OR abstract=SARS-CoV-2; OR abstract=COVID-19; OR title=SARS-CoV-2; OR title=coronavirus; OR abstract=coronavirus
+## set start and max results so can export in multiple bunches: We recommend to refine queries which return more than 1,000 results, or at least request smaller slices.
+#
+
+# searchURL <- "http://export.arxiv.org/api/query?search_query=ti:COVID-19+OR+abs:COVID-19+OR+ti:SARS-CoV-2+OR+abs:SARS-CoV-2+OR+ti:coronavirus+OR+abs:coronavirus&start=0&max_results=2000" # This should be 1,382 results based on HTML search page but API only returns 492 
+
+searchURL <- "http://export.arxiv.org/api/query?search_query=ti:COVID+OR+abs:COVID+OR+ti:CoV+OR+abs:CoV+OR+ti:coronavirus+OR+abs:coronavirus&start=0&max_results=2000" # simplified COVID-19 to COVID and Sars-CoV-2 to CoV and this returns 1432 results. Perhaps come back to this issue. 
+
+## download latest
+# filenameA <- sprintf("arxiv%s.txt", format(Sys.time(),'_%Y%m%d_%H%M'))
+# download_xml(searchURL,file=filenameA)
+
+# # or import previous download
+filenameA <- "medrxiv_20200619_1120.txt"
+
+import.arx <- read_xml(filenameA)
+nsA <- xml_children(import.arx)
+
+## same strategy as above
+arx.list <- as_list(import.arx)[[1]] 
+ll <- length(arx.list)-7
+arx.df <- data.frame(title=rep(NA,ll),first.author=rep(NA,ll),url=rep(NA,ll),abstract=rep(NA,ll),doi=rep(NA,ll))
+
+# names of fields are different from above
+for(i in 8:length(arx.list)) { #first seven items in list are not papers
+  ind = i - 7
+  arx.df$title[ind] <- arx.list[i]$entry$title[[1]]
+  arx.df$first.author[ind] <- arx.list[i]$entry$author[[1]] #
+  arx.df$url[ind] <- arx.list[i]$entry$id[[1]]
+  arx.df$abstract[ind] <- arx.list[i]$entry$summary[[1]]
+  # no DOI
+}
+
+# search for keywords and label rows
+arx.df$title.model <- grepl(arx.df$title, pattern = "model*",ignore.case = T) # title contains "model" 
+table(arx.df$title.model) # 287
+arx.df$abstract.model <- grepl(arx.df$abstract, pattern = "model*",ignore.case = T) # abstract contains "model" 
+table(arx.df$abstract.model) # 763
+arx.df$abstract.uk <- grepl(arx.df$abstract, pattern = "united kingdom | great britain | england",ignore.case = T) # abstract contains (“United Kingdom” or “Great Britain” or “England”)
+table(arx.df$abstract.uk) # 8
+# abstract contains "model" AND  (“United Kingdom” or “Great Britain” or “England”)
+with(arx.df,table(abstract.uk,abstract.model))  # 5 contain both
+
+# save excel file so can filter and review there
+write_xlsx(arx.df,"arxiv_export.xlsx",col_names = TRUE)
 
