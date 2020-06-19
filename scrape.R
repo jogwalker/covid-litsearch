@@ -42,7 +42,7 @@ med.df$title.model <- grepl(med.df$title, pattern = "model*",ignore.case = T) # 
 table(med.df$title.model) # 674
 med.df$abstract.model <- grepl(med.df$abstract, pattern = "model*",ignore.case = T) # abstract contains "model" 
 table(med.df$abstract.model) # 2197
-med.df$abstract.uk <- grepl(med.df$abstract, pattern = "united kingdom | great britain | england",ignore.case = T) # abstract contains "model" 
+med.df$abstract.uk <- grepl(med.df$abstract, pattern = "united kingdom | great britain | england",ignore.case = T) # abstract contains (“United Kingdom” or “Great Britain” or “England”)
 table(med.df$abstract.uk) # 114
 # abstract contains "model" AND  (“United Kingdom” or “Great Britain” or “England”)
 with(med.df,table(abstract.uk,abstract.model))  # 61 contain both
@@ -52,10 +52,6 @@ write_xlsx(med.df,"medrxiv_export.xlsx",col_names = TRUE)
 
 
 
-
-
 # arXiv
+# https://arxiv.org/search/advanced?advanced=&terms-0-operator=AND&terms-0-term=COVID-19&terms-0-field=title&terms-1-operator=OR&terms-1-term=SARS-CoV-2&terms-1-field=abstract&terms-3-operator=OR&terms-3-term=COVID-19&terms-3-field=abstract&terms-4-operator=OR&terms-4-term=SARS-CoV-2&terms-4-field=title&terms-5-operator=OR&terms-5-term=coronavirus&terms-5-field=title&terms-6-operator=OR&terms-6-term=coronavirus&terms-6-field=abstract&classification-physics_archives=all&classification-include_cross_list=include&date-filter_by=all_dates&date-year=&date-from_date=&date-to_date=&date-date_type=submitted_date&abstracts=show&size=200&order=-announced_date_first&source=home-covid-19
 
-
-
-# SMDM
