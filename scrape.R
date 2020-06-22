@@ -84,7 +84,7 @@ arx.df <- data.frame(title=rep(NA,ll),first.author=rep(NA,ll),url=rep(NA,ll),abs
 for(i in 8:length(arx.list)) { #first seven items in list are not papers
   ind = i - 7
   arx.df$title[ind] <- arx.list[i]$entry$title[[1]]
-  arx.df$first.author[ind] <- arx.list[i]$entry$author[[1]] #
+  arx.df$first.author[ind] <- arx.list[i]$entry$author[[1]][[1]] #
   arx.df$url[ind] <- arx.list[i]$entry$id[[1]]
   arx.df$abstract[ind] <- arx.list[i]$entry$summary[[1]]
   # no DOI
