@@ -48,6 +48,14 @@ table(med.df$abstract.uk) # 114
 # abstract contains "model" AND  (“United Kingdom” or “Great Britain” or “England”)
 with(med.df,table(abstract.uk,abstract.model))  # 61 contain both
 
+## add search for other countries in abstract
+med.df$abstract.spain <- grepl(med.df$abstract, pattern = "spain",ignore.case = T)
+med.df$abstract.ireland <- grepl(med.df$abstract, pattern = "ireland",ignore.case = T)
+med.df$abstract.germany <- grepl(med.df$abstract, pattern = "germany",ignore.case = T)
+med.df$abstract.sweden <- grepl(med.df$abstract, pattern = "sweden",ignore.case = T)
+med.df$abstract.korea <- grepl(med.df$abstract, pattern = "korea",ignore.case = T)
+
+
 # save excel file so can filter and review there
 write_xlsx(med.df,"medrxiv_export.xlsx",col_names = TRUE)
 
@@ -70,7 +78,7 @@ searchURL <- "http://export.arxiv.org/api/query?search_query=ti:COVID+OR+abs:COV
 # download_xml(searchURL,file=filenameA)
 
 # # or import previous download
-filenameA <- "medrxiv_20200619_1120.txt"
+filenameA <- "arxiv_20200619_2154.txt"
 
 import.arx <- read_xml(filenameA)
 nsA <- xml_children(import.arx)
@@ -99,6 +107,15 @@ arx.df$abstract.uk <- grepl(arx.df$abstract, pattern = "united kingdom | great b
 table(arx.df$abstract.uk) # 8
 # abstract contains "model" AND  (“United Kingdom” or “Great Britain” or “England”)
 with(arx.df,table(abstract.uk,abstract.model))  # 5 contain both
+
+## add search for other countries in abstract
+arx.df$abstract.spain <- grepl(arx.df$abstract, pattern = "spain",ignore.case = T)
+arx.df$abstract.ireland <- grepl(arx.df$abstract, pattern = "ireland",ignore.case = T)
+arx.df$abstract.germany <- grepl(arx.df$abstract, pattern = "germany",ignore.case = T)
+arx.df$abstract.sweden <- grepl(arx.df$abstract, pattern = "sweden",ignore.case = T)
+arx.df$abstract.korea <- grepl(arx.df$abstract, pattern = "korea",ignore.case = T)
+
+
 
 # save excel file so can filter and review there
 write_xlsx(arx.df,"arxiv_export.xlsx",col_names = TRUE)
