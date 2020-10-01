@@ -4,7 +4,7 @@
 library(dplyr)
 library(caTools)
 library(data.table)
-
+library(purrr)
 
 tbl_fread.A <- 
   list.files(path="~/dat/Covid model outputs CMMID/A/",full.names = T) %>% 
@@ -22,7 +22,23 @@ tbl_fread.D <-
   list.files(path="~/dat/Covid model outputs CMMID/D/",full.names = T) %>% 
   map_df(~fread(.))
 
-all_sim <- bind_rows(list(A=tbl_fread.A,B=tbl_fread.B,C=tbl_fread.C,D=tbl_fread.D),.id="Sim") %>% filter(scenario=="Unmitigated")
+tbl_fread.E <- 
+  list.files(path="~/dat/Covid model outputs CMMID/E/",full.names = T) %>% 
+  map_df(~fread(.))
+
+tbl_fread.F <- 
+  list.files(path="~/dat/Covid model outputs CMMID/F/",full.names = T) %>% 
+  map_df(~fread(.))
+
+tbl_fread.G <- 
+  list.files(path="~/dat/Covid model outputs CMMID/G/",full.names = T) %>% 
+  map_df(~fread(.))
+
+tbl_fread.H <- 
+  list.files(path="~/dat/Covid model outputs CMMID/H/",full.names = T) %>% 
+  map_df(~fread(.))
+
+all_sim <- bind_rows(list(A=tbl_fread.A,B=tbl_fread.B,C=tbl_fread.C,D=tbl_fread.D,E=tbl_fread.E,F=tbl_fread.F,G=tbl_fread.G,H=tbl_fread.H),.id="Sim") %>% filter(scenario=="Unmitigated")
 
 all_sim$date <- as.Date(all_sim$epi_date)
 
@@ -58,12 +74,12 @@ C %>% filter(readable_name=="Non-ICU beds occupied")
 
 C %>% filter(population=="United Kingdom" & readable_name=="Cases")
 
-Cw <- C %>% select(-total_trapz) %>% spread(readable_name,total_cumsum)
+Cw <- C %>% dplyr::select(-total_trapz) %>% spread(readable_name,total_cumsum)
 
 CA <- a2 %>% filter(readable_name=="Deaths") %>% group_by(Sim,readable_name,population,group_combined) %>% summarise(total_cumsum=max(cumsum(byages)))
 CAw <- CA %>% spread(group_combined,total_cumsum) 
 
-tofill <- expand.grid(population=c("United Kingdom","Sweden","Germany","Spain","Ireland","Republic of Korea"),Sim=c("A","B","C","D"))
+tofill <- expand.grid(population=c("Germany","Ireland","Spain","Sweden","United Kingdom"),Sim=c("D","G","H")) # reordered output
 
 Cout <- left_join(tofill,Cw,by=c("population","Sim")) %>% left_join(.,CAw,by=c("population","Sim"))
 
