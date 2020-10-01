@@ -79,7 +79,7 @@ Cw <- C %>% dplyr::select(-total_trapz) %>% spread(readable_name,total_cumsum)
 CA <- a2 %>% filter(readable_name=="Deaths") %>% group_by(Sim,readable_name,population,group_combined) %>% summarise(total_cumsum=max(cumsum(byages)))
 CAw <- CA %>% spread(group_combined,total_cumsum) 
 
-tofill <- expand.grid(population=c("Germany","Ireland","Spain","Sweden","United Kingdom"),Sim=c("D","G","H")) # reordered output
+tofill <- expand.grid(population=c("Germany","Ireland","Spain","Sweden","United Kingdom"),Sim=LETTERS[1:8]) # reordered output
 
 Cout <- left_join(tofill,Cw,by=c("population","Sim")) %>% left_join(.,CAw,by=c("population","Sim"))
 
